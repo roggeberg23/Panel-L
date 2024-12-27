@@ -1,0 +1,39 @@
+{
+  "content": [
+    {
+      "path": "html_ui/icons/toolbar/rgb-latecoere-icon-edited.svg",
+      "size": 153,
+      "date": 133337127247380067
+    },
+    {
+      "path": "html_ui/icons/toolbar/rgb-latecoere-icon-working.svg",
+      "size": 19691,
+      "date": 133262993199278011
+    },
+    {
+      "path": "html_ui/icons/toolbar/rgb-latecoere-icon.svg",
+      "size": 153,
+      "date": 133337127247380067
+    },
+    {
+      "path": "html_ui/InGamePanels/rgb-latecoere/rgb-latecoere.css",
+      "size": 36,
+      "date": 133725953747577653
+    },
+    {
+      "path": "html_ui/InGamePanels/rgb-latecoere/rgb-latecoere.html",
+      "size": 1728,
+      "date": 133725953861584369
+    },
+    {
+      "path": "html_ui/InGamePanels/rgb-latecoere/rgb-latecoere.js",
+      "size": 12134,
+      "date": 133626710136925285
+    },
+    {
+      "path": "InGamePanels/rgb-latecoere-igp.spb",
+      "size": 678,
+      "date": 133725954188134736
+    }
+  ]
+}
