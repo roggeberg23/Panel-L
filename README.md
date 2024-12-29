@@ -2,7 +2,7 @@
 Panel L [] Latecoere panel with primary flight data
 
 (1) To download the MSFS package "rgb-latecoere-l" press the green code button above.\
-&emsp;&nbsp;&nbsp;&nbsp;Download size is 8 KB.
+&emsp;&emsp;Download size is 8 KB.
 
 (2) Select the option "Download ZIP"
 
