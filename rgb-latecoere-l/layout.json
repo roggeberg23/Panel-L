@@ -1,0 +1,29 @@
+{
+  "content": [
+    {
+      "path": "html_ui/icons/toolbar/rgb-latecoere-icon.svg",
+      "size": 153,
+      "date": 133337127247380067
+    },
+    {
+      "path": "html_ui/InGamePanels/rgb-latecoere/rgb-latecoere.css",
+      "size": 39,
+      "date": 133886084240905258
+    },
+    {
+      "path": "html_ui/InGamePanels/rgb-latecoere/rgb-latecoere.html",
+      "size": 1634,
+      "date": 133886103574779256
+    },
+    {
+      "path": "html_ui/InGamePanels/rgb-latecoere/rgb-latecoere.js",
+      "size": 14717,
+      "date": 133886095252866162
+    },
+    {
+      "path": "InGamePanels/rgb-latecoere-igp.spb",
+      "size": 678,
+      "date": 133886592195247973
+    }
+  ]
+}
