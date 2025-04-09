@@ -27,6 +27,7 @@ class IngamePanelCustomPanel extends TemplateElement {
 		let nav1FreqDisplay = "null";
 		let nav1HasNav = 0;				// internal only, no "display" counterpart
 		let nav1DME = 0;
+		//let nav1VOR = 0;				// 8-4-2025 toegevoegd vanwege hypothenusa code 32 bakens
 		let nav1DmeDisplay = "null";
 		let relativeHeadingToNav1 = 0;	// internal only, no "display" counterpart
 		let headingToNav1 = 0;
@@ -34,6 +35,24 @@ class IngamePanelCustomPanel extends TemplateElement {
 		let nav1Code = 0;
 		let nav1CodeDecimalDisplay = "null";
 		let nav1CodeBinaryDisplay = "null";
+		//
+		let nav1DME_LatLonAlt = 0;				// object ophalen
+		let nav1DME_AltitudeString = "null";	// de altitude string uit het object halen
+		let nav1DME_Altitude = 0;				// altitude string omzetten naar een getal
+		let nav1DME_AltitudeDisplay = "null";	// altitude afgerond tonen
+		//
+		let nav1VOR_LatLonAlt = 0;				// object ophalen
+		let nav1VOR_AltitudeString = "null";	// de altitude string uit het object halen
+		let nav1VOR_Altitude = 0;				// altitude string omzetten naar een getal
+		let nav1VOR_AltitudeDisplay = "null";	// altitude afgerond tonen
+		//
+		let nav1_AltitudeDisplay = "null";		// het veld in de tabel, toont of de DME of de VOR altitude
+		//
+		let hypotenuse_AB = 0;
+		let triangleSide_AC = 0;
+		let triangleSide_BC = 0;
+		let triangleSide_BC_KM = 0;
+		let triangleSide_BC_KM_Display = "null";
 		//
 		let elevatorTrimPercent = 0;
 		let elevatorTrimPercentDisplay = "null";
@@ -74,7 +93,7 @@ class IngamePanelCustomPanel extends TemplateElement {
 			//
 			currentAltitudeAsl =
 			SimVar.GetSimVarValue("INDICATED ALTITUDE", "meter");
-			currentAltitudeAslDisplay = currentAltitudeAsl.toFixed(0);
+			currentAltitudeAslDisplay = currentAltitudeAsl.toFixed(1);
 			//
 			currentAltitudeAgl =
 			SimVar.GetSimVarValue("PLANE ALT ABOVE GROUND", "meter") - 0.2953;
@@ -101,13 +120,46 @@ class IngamePanelCustomPanel extends TemplateElement {
 			// At every cycle NAV1 may become "out-of reach",
 			// so at every interval the "display" variables are
 			// set to "null".
-			//								
+			// april 2025
+			// Addition to calculate the horizontal distance to the DME
+			// using pythagoras.
+			//
 			nav1Ident = SimVar.GetSimVarValue("NAV IDENT:1", "string");
 			nav1Freq = SimVar.GetSimVarValue("NAV ACTIVE FREQUENCY:1", "MHz");
 			nav1HasNav = SimVar.GetSimVarValue("NAV HAS NAV:1", "bool");
 			nav1DME = SimVar.GetSimVarValue("NAV DME:1", "kilometer");
 			nav1Code = SimVar.GetSimVarValue("NAV CODES:1", "flags");
-			
+			//
+			// april 2025
+			// The elevation or altitude of the DME station is available but
+			// not as a seperate variable. It is part of a "latlonalt"object.
+			// It can beretrieved from the object using the keyword "alt".
+			// The retrieved value is a string and must be converted to a number.
+			//
+			// Berekening van de altitude / elevation van de VOR,
+			// bedoeld voor bakens met nav1Code = 32
+			//
+			nav1VOR_LatLonAlt = SimVar.GetSimVarValue("NAV VOR LATLONALT:1", "latlonalt");
+			nav1VOR_AltitudeString = nav1VOR_LatLonAlt.alt;
+			nav1VOR_Altitude = Number(nav1VOR_AltitudeString);
+			nav1VOR_AltitudeDisplay = nav1VOR_Altitude.toFixed(1);
+			//
+			// Berekening van de altitude / elevation van de DME met
+			// aansluitend de "stelling van pythogoras om de horizontale
+			// afstand tussen het vliegtuig en het baken te berekenen.
+			// Voor alle bakens die een DME hebben.
+			//
+			nav1DME_LatLonAlt = SimVar.GetSimVarValue("NAV DME LATLONALT:1", "latlonalt");
+			nav1DME_AltitudeString = nav1DME_LatLonAlt.alt;
+			nav1DME_Altitude = Number(nav1DME_AltitudeString);
+			nav1DME_AltitudeDisplay = nav1DME_Altitude.toFixed(1);
+			//
+			hypotenuse_AB = 1000 * nav1DME;
+			triangleSide_AC = currentAltitudeAsl - nav1DME_Altitude;
+			triangleSide_BC = Math.sqrt(hypotenuse_AB * hypotenuse_AB - triangleSide_AC * triangleSide_AC);
+			triangleSide_BC_KM = triangleSide_BC / 1000;
+			triangleSide_BC_KM_Display = triangleSide_BC_KM.toFixed(1); // is shown in table
+			//
 			relativeHeadingToNav1 =
 			SimVar.GetSimVarValue("NAV RELATIVE BEARING TO STATION:1", "degrees");
 				headingToNav1 = currentHeading + relativeHeadingToNav1;
@@ -140,34 +192,39 @@ class IngamePanelCustomPanel extends TemplateElement {
 					nav1IdentDisplay = nav1Ident;
 					headingToNav1Display = headingToNav1.toFixed(0);
 					nav1DmeDisplay = "noDME";
+					nav1_AltitudeDisplay = nav1VOR_AltitudeDisplay;
 				}
 			}
 			if (nav1Code == 33) {
 				if (nav1HasNav == 1) {
 					nav1IdentDisplay = nav1Ident;
 					headingToNav1Display = headingToNav1.toFixed(0);
-					nav1DmeDisplay = nav1DME.toFixed(1);
+					nav1DmeDisplay = triangleSide_BC_KM_Display;
+					nav1_AltitudeDisplay = nav1DME_AltitudeDisplay;
 				}
 			}
 			if (nav1Code == 35) {
 				if (nav1HasNav == 1) {
 					nav1IdentDisplay = nav1Ident;
 					headingToNav1Display = headingToNav1.toFixed(0);
-					nav1DmeDisplay = nav1DME.toFixed(1);
+					nav1DmeDisplay = triangleSide_BC_KM_Display;
+					nav1_AltitudeDisplay = nav1DME_AltitudeDisplay;
 				}
 			}
 			if (nav1Code == 41) {
 				if (nav1DME > 0.1) {
 					nav1IdentDisplay = nav1Ident;
 					headingToNav1Display = "no_Nav";
-					nav1DmeDisplay = nav1DME.toFixed(1);
+					nav1DmeDisplay = triangleSide_BC_KM_Display;
+					nav1_AltitudeDisplay = nav1DME_AltitudeDisplay;
 				}
 			}
 			if (nav1Code == 43) {
 				if (nav1DME > 0.1) {
 					nav1IdentDisplay = nav1Ident;
 					headingToNav1Display = "no_Nav";
-					nav1DmeDisplay = nav1DME.toFixed(1);
+					nav1DmeDisplay = triangleSide_BC_KM_Display;
+					nav1_AltitudeDisplay = nav1DME_AltitudeDisplay;
 				}
 			}
 			//
@@ -293,9 +350,11 @@ class IngamePanelCustomPanel extends TemplateElement {
 				"<td>" + nav1CodeDecimalDisplay + "</td>" +
 			"</tr>" +	
 			"<tr>" + 
-				"<td>" + "NAV1 DME (km):"  + "</td>" +
+				"<td>" + "NAV1 DME (km): "  + "</td>" +
 				"<td>" + nav1DmeDisplay + "</td>" +
 				"<td>" + "|" + "</td>" +
+				"<td>" + "NAV1 ALT (mtr): "  + "</td>" +
+				"<td>" + nav1_AltitudeDisplay + "</td>" +
 				// "<td>" + "Binair:"  + "</td>" +
 				// "<td>" + nav1CodeBinaryDisplay + "</td>" +
 			"</tr>" +		
@@ -335,8 +394,19 @@ class IngamePanelCustomPanel extends TemplateElement {
 			"</tr>"
 			*/
 			;
-			document.getElementById("myTable01").innerHTML = tableStringDisplay;	
+			document.getElementById("myTable01").innerHTML = tableStringDisplay;
+			//
+			//document.getElementById("output1").innerHTML = "hypothenuse_AB: " + hypotenuse_AB_Display;
+			//document.getElementById("output2").innerHTML = "triangleSide_AC: "+ triangleSide_AC_Display;
+			//document.getElementById("output3").innerHTML = "triangleSide_BC: " + triangleSide_BC_Display;
+			//document.getElementById("output4").innerHTML = nav1DME_LatLonAlt;
+			//document.getElementById("output5").innerHTML = nav1DME_AltitudeString;
+			//document.getElementById("output6").innerHTML = nav1VOR_LatLonAlt;
+			//document.getElementById("output7").innerHTML = nav1VOR_AltitudeString;
+			//
 		}, 100);
+		
+		
 		
 			
 	//
